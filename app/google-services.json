@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "656511073185",
+    "project_id": "mymarket-dd9e5"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656511073185:android:7ff32a4d4ea358c0",
+        "android_client_info": {
+          "package_name": "com.mymarket.gcm.julien"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBV8iNiBJx55NbfwtrkQspOl1-uFSZIpiE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
