@@ -1,18 +1,27 @@
 package com.mymarket.gcm.julien;
 
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmPubSub;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
+import com.mymarket.gcm.julien.DAO.impl.DAOConstants;
+import com.mymarket.gcm.julien.DAO.impl.UserDAO;
+import com.mymarket.gcm.julien.modeles.User;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -21,9 +30,11 @@ import java.io.IOException;
  * TODO: Customize class - update intent actions, extra parameters and static
  * helper methods.
  */
-public class RegistrationIntentService extends IntentService {
+public class RegistrationIntentService extends IntentService implements DAOConstants {
     private static final String TAG = "RegIntentService";
     private static final String[] TOPICS = {"global"};
+    private UserDAO userDAO;
+    private AsyncTaskFindOne one;
 
     public RegistrationIntentService() {
         super(TAG);
@@ -68,30 +79,108 @@ public class RegistrationIntentService extends IntentService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
     }
 
-    /**
-     * Persist registration to third-party servers.
-     *
-     * Modify this method to associate the user's GCM registration token with any server-side account
-     * maintained by your application.
-     *
-     * @param token The new token.
-     */
+
     private void sendRegistrationToServer(String token) {
-        // Add custom implementation, as needed.
+        User user = this.getOne(token);
+        if(user != null){
+            this.insertSqLITE(token);
+        }
     }
 
-    /**
-     * Subscribe to any GCM topics of interest, as defined by the TOPICS constant.
-     *
-     * @param token GCM token
-     * @throws IOException if unable to reach the GCM PubSub service
-     */
-    // [START subscribe_topics]
+
     private void subscribeTopics(String token) throws IOException {
         GcmPubSub pubSub = GcmPubSub.getInstance(this);
         for (String topic : TOPICS) {
             pubSub.subscribe(token, "/topics/" + topic, null);
         }
+
     }
-    // [END subscribe_topics]
+
+    public void insertProvider(String input){
+        if(!TextUtils.isEmpty(input)){
+            try {
+                ContentValues user = new ContentValues();
+                Calendar c = Calendar.getInstance();
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String formattedDate = df.format(c.getTime());
+                user.put(NOM_COLONNE_TOKENDEVISE_USER, input);
+                getContentResolver().insert(CONTENT_URI_USER, user);
+                Log.i(TAG, "OK INSERT: ");
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i(TAG, "ERROR insert 1: ");
+            }
+        }
+        else{
+            Log.i(TAG, "ERROR insert 2: ");
+        }
+    }
+    /*public User getUserToken(String token ){
+        if(!TextUtils.isEmpty(token)){
+            this.userDAO = new UserDAO(this);
+            try {
+                this.userDAO.open();
+                User user = this. userDAO.retrieveByName(token);
+                this. userDAO.close();
+                Log.i(TAG, "OK INSERT: ");
+                return user;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i(TAG, "ERROR insert 1: ");
+                return user;
+            }
+        }
+        else{
+            Log.i(TAG, "ERROR insert 2: ");
+            return false;
+        }
+    }*/
+
+    public void insertSqLITE(String input ){
+        if(!TextUtils.isEmpty(input)){
+            User p = new User(input);
+            this.userDAO = new UserDAO(this);
+            try {
+                this.userDAO.open();
+                this. userDAO.create(p);
+                this. userDAO.close();
+                Log.i(TAG, "OK INSERT: ");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i(TAG, "ERROR insert 1: ");
+            }
+        }
+        else{
+            Log.i(TAG, "ERROR insert 2: ");
+        }
+    }
+
+    public User getOne(String token){
+        try {
+            this.userDAO.open();
+            this.one = new AsyncTaskFindOne();
+            this.one.execute(this.userDAO);
+            User result = this.one.get();
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private class AsyncTaskFindOne extends AsyncTask<UserDAO,Void,User> {
+        private Throwable cause = null;
+        @Override
+        protected User doInBackground(UserDAO... params) {
+            try{
+                return params[0].retrieveByName("fdfdfdfd");
+            }
+            catch (Exception e){
+                cause = e;
+                return null;
+            }
+        }
+    }
 }

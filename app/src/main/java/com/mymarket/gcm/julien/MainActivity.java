@@ -80,7 +80,8 @@ public class MainActivity extends AppCompatActivity {
         this.et = (EditText) findViewById(R.id.messageId);
         et.requestFocus();
         this.sender = new Sender();
-        //this.listRegIds = new GCMListRegIds(this, GCMListRegIds.LIST_NAME);
+        this.listRegIds = new GCMListRegIds(this, GCMListRegIds.LIST_NAME);
+        Log.i(TAG, this.listRegIds.toString());
 
     }
 
@@ -176,21 +177,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         protected Exception doInBackground(String... params) {
-           // final com.google.android.gcm.server.Message msg = new com.google.android.gcm.server.Message.Builder()
-                    //.collapseKey("1") // avec la meme cl , le nouveau remplace l'ancien pour le meme utilisateur
-                    //.timeToLive(30)  // le message est conserve  30 secondes, ne rien mettre, il est conserve  4 semaines
-                   // .timeToLive(60 * 60 * 24) // 24 heures
-                    //.timeToLive(120)
-                    //.timeToLive(0)  // maintenant ou jamais
-                   // .delayWhileIdle(true)
-                   // .addData("message", message)
-                   // .build();
-          //  final List<String> abonnes = listRegIds.regIds();
-           // Exception cause = null;
             try {
                 if(internet() /*&& abonnes.size()>=0*/) {
                     //MulticastResult result = sender.send(msg, abonnes, 15);
-                    sender.send();
+                    sender.send(this.message);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

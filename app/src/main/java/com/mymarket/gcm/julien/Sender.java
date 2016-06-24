@@ -18,16 +18,17 @@ import java.net.URLEncoder;
 public class Sender {
 
     public static final String API_KEY = "AIzaSyCU5atEe-Hgd-hU_ZH_Zw10XX447eBdtYA";
+    private String messageSend;
 
 
-
-    public static void send() {
+    public static void send(String message) {
+        String messageSend = message;
         try {
             // Prepare JSON containing the GCM message content. What to send and where to send.
             JSONObject jGcmData = new JSONObject();
             JSONObject jData = new JSONObject();
             try {
-                jData.put( "message" , "here5555555 is a message. message");
+                jData.put( "message" , messageSend);
                 jData.put( "title"		, "This is a title. title");
                 jData.put( "subtitle"	, "This is a subtitle. subtitle");
                 jData.put( "tickerText"	, "Ticker text here...Ticker text here...Ticker text here");
