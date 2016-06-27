@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 
 /**
  * Created by julien on 23/06/2016.
@@ -21,8 +22,9 @@ public class Sender {
     private String messageSend;
 
 
-    public static void send(String message) {
+    public static void send(String message, String abonne) {
         String messageSend = message;
+
         try {
             // Prepare JSON containing the GCM message content. What to send and where to send.
             JSONObject jGcmData = new JSONObject();
@@ -42,7 +44,8 @@ public class Sender {
             }
             try {
                 jGcmData.put("data", jData);
-                jGcmData.put("to", "evvzg0qh4Rc:APA91bHxG63qiDpPe-gbFpedFBVZkfBN-ZHZahnFmpPMsh7FeMfAsicd44J5dGw-WPacv8Za4yyWliIchwYulh8YdWha-7ij3h2KVR1nZuwKpkM2LFo3fUUS42YAeh1efCFyWciNqscR");
+                //jGcmData.put("to", "evvzg0qh4Rc:APA91bHxG63qiDpPe-gbFpedFBVZkfBN-ZHZahnFmpPMsh7FeMfAsicd44J5dGw-WPacv8Za4yyWliIchwYulh8YdWha-7ij3h2KVR1nZuwKpkM2LFo3fUUS42YAeh1efCFyWciNqscR");
+                jGcmData.put("to", abonne);
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

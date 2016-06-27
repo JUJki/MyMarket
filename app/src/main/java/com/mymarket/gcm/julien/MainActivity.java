@@ -23,7 +23,9 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.mymarket.gcm.julien.modeles.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -171,16 +173,23 @@ public class MainActivity extends AppCompatActivity {
     private class SendMessageToCloudTask extends AsyncTask<String, Void, Exception> {
         private String message;
         private Exception cause;
+        private String abonne;
+        private ArrayList<User> arrayUser;
 
         public SendMessageToCloudTask(String message) {
             this.message = message;
+            ServerRequests serverRequest = new ServerRequests(MainActivity.this);
+            arrayUser = serverRequest.fetchAllUserDataAsyncTask();
+            Log.i(TAG, arrayUser.toString());
+            this.abonne = "evvzg0qh4Rc:APA91bHxG63qiDpPe-gbFpedFBVZkfBN-ZHZahnFmpPMsh7FeMfAsicd44J5dGw-WPacv8Za4yyWliIchwYulh8YdWha-7ij3h2KVR1nZuwKpkM2LFo3fUUS42YAeh1efCFyWciNqscR";
+
         }
 
         protected Exception doInBackground(String... params) {
             try {
                 if(internet() /*&& abonnes.size()>=0*/) {
                     //MulticastResult result = sender.send(msg, abonnes, 15);
-                    sender.send(this.message);
+                    sender.send(this.message,abonne);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

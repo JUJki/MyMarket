@@ -20,9 +20,11 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -32,6 +34,7 @@ public class ServerRequests {
     private static final String TAG = "ServerRequest";
     public static final int CONNECTION_TIMEOUT = 1000 * 15;
     public static final String SERVER_ADDRESS = "http://82.241.46.118:49200/mymarket/";
+    public ArrayList<User> arrayUSer = new ArrayList<User>();
 
 
     public ServerRequests(Context context) {
@@ -44,6 +47,11 @@ public class ServerRequests {
 
     public void fetchUserDataAsyncTask(User user) {
         new fetchUserDataAsyncTask(user).execute();
+    }
+    public  ArrayList<User> fetchAllUserDataAsyncTask() {
+        fetchAllUserDataAsyncTask fetchUser = new fetchAllUserDataAsyncTask(arrayUSer);
+        fetchUser.execute();
+        return this.arrayUSer;
     }
 
     public void storeCourseDataAsyncTask(Course course) {
@@ -151,6 +159,59 @@ public class ServerRequests {
         @Override
         protected void onPostExecute(User returnedUser) {
             super.onPostExecute(returnedUser);
+        }
+    }
+
+    public class fetchAllUserDataAsyncTask extends AsyncTask<ArrayList<User>, Void, ArrayList<User>> {
+        ArrayList<User> arrayuser;
+
+        public fetchAllUserDataAsyncTask(ArrayList<User> arrayListUser) {
+
+            this.arrayuser = arrayListUser;
+        }
+
+        @Override
+        protected ArrayList<User> doInBackground(ArrayList<User>... params) {
+            ArrayList<NameValuePair> dataToSend = new ArrayList<>();
+            HttpParams httpRequestParams = new BasicHttpParams();
+            HttpConnectionParams.setConnectionTimeout(httpRequestParams,
+                    CONNECTION_TIMEOUT);
+            HttpConnectionParams.setSoTimeout(httpRequestParams,
+                    CONNECTION_TIMEOUT);
+
+            HttpClient client = new DefaultHttpClient(httpRequestParams);
+            HttpPost post = new HttpPost(SERVER_ADDRESS
+                    + "FetchAllUserData.php");
+
+            try {
+                post.setEntity(new UrlEncodedFormEntity(dataToSend));
+                HttpResponse httpResponse = client.execute(post);
+
+                HttpEntity entity = httpResponse.getEntity();
+                String result = EntityUtils.toString(entity);
+                JSONArray jObject = new JSONArray(result);
+                Log.i(TAG, result.toString());
+                Log.i(TAG, "nb"+jObject.length());
+                if (jObject.length() != 0){
+                    for (int i=0; i<jObject.length(); i++) {
+                        JSONObject value = jObject.getJSONObject(i);
+                        String token = value.getString("token");
+                        Log.i(TAG, "nb"+token);
+                        arrayuser.add(new User(token));
+                    }
+                }
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            }
+            return arrayuser;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<User> arrayUser) {
+            super.onPostExecute(arrayUser);
+            arrayUSer = arrayUser;
         }
     }
 
