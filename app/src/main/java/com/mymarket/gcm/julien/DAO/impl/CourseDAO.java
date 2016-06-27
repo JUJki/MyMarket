@@ -48,6 +48,11 @@ public class CourseDAO implements IDAO<Course, Long>, DAOConstants {
     }
 
     @Override
+    public Course retrieveByName(String name) throws Exception {
+        return null;
+    }
+
+    @Override
     public List<Course> findAll() throws Exception {
         return null;
     }

@@ -81,10 +81,13 @@ public class RegistrationIntentService extends IntentService implements DAOConst
 
 
     private void sendRegistrationToServer(String token) {
-        User user = this.getOne(token);
+        User user = new User(token);
+        ServerRequests serverRequest = new ServerRequests(this);
+        serverRequest.storeUserDataInBackground(user);
+       /* User user = this.getOne(token);
         if(user != null){
             this.insertSqLITE(token);
-        }
+        }*/
     }
 
 
