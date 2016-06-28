@@ -12,21 +12,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Created by julien on 23/06/2016.
- */
+
 public class Sender {
-
     public static final String API_KEY = "AIzaSyCU5atEe-Hgd-hU_ZH_Zw10XX447eBdtYA";
     private String messageSend;
 
-
-    public static void send(String message, String abonne) {
+    public static void send(String message, List<String> abonne) {
         String messageSend = message;
-
         try {
-            // Prepare JSON containing the GCM message content. What to send and where to send.
             JSONObject jGcmData = new JSONObject();
             JSONObject jData = new JSONObject();
             try {
@@ -39,7 +34,6 @@ public class Sender {
                 jData.put( "largeIcon"	, "large_icon");
                 jData.put( "smallIcon"	, "small_icon");
             } catch (JSONException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             try {
@@ -47,13 +41,11 @@ public class Sender {
                 //jGcmData.put("to", "evvzg0qh4Rc:APA91bHxG63qiDpPe-gbFpedFBVZkfBN-ZHZahnFmpPMsh7FeMfAsicd44J5dGw-WPacv8Za4yyWliIchwYulh8YdWha-7ij3h2KVR1nZuwKpkM2LFo3fUUS42YAeh1efCFyWciNqscR");
                 jGcmData.put("to", abonne);
             } catch (JSONException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
             DataOutputStream printout;
             DataInputStream input;
-            // Create connection to send GCM Message request.
             URL url = new URL("https://android.googleapis.com/gcm/send");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Authorization", "key=" + API_KEY);

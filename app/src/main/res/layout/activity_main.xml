@@ -26,34 +26,44 @@
         android:textAllCaps="false"
         android:id="@+id/button"
         android:onClick="onClickSend"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="121dp" />
+        android:layout_below="@+id/messageId"
+        android:layout_alignParentStart="true" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/messageId"
-        android:text="ici un message..."
+        android:text="Nouvelle course."
         android:focusable="true"
         android:layout_marginRight="44dp"
-        android:layout_above="@+id/button"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/registrationProgressBar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="37dp" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Refresh"
         android:id="@+id/button2"
-        android:layout_below="@+id/registrationProgressBar"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="70dp" />
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/registrationProgressBar" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Button"
+        android:text="ListCourse"
         android:id="@+id/button3"
+        android:onClick="onClickList"
         android:layout_alignTop="@+id/button2"
-        android:layout_toEndOf="@+id/informationTextView" />
+        android:layout_alignEnd="@+id/messageId"
+        android:layout_marginEnd="38dp" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listView"
+        android:layout_below="@+id/button3"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="50dp" />
+
 </RelativeLayout>

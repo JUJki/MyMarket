@@ -4,12 +4,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-/**
- * Created by julien on 24/06/2016.
- */
+
 public class UserHelper extends SQLiteOpenHelper implements DAOConstants {
 
-    private static final String DATABASE_NAME = "gcmjulien.db";
+    private static final String DATABASE_NAME = "gcmjulienuser.db";
     private static final int DATABASE_VERSION = 1;
 
     public UserHelper(Context context) {

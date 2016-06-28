@@ -28,6 +28,11 @@ public class Course {
 
     }
 
+    public Course(String name, String date) {
+        this.name = name;
+        this.date = date;
+    }
+
     public Long getId() {
         return id;
     }

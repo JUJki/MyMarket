@@ -15,43 +15,47 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.mymarket.gcm.julien.DAO.impl.CourseDAO;
+import com.mymarket.gcm.julien.modeles.Course;
 import com.mymarket.gcm.julien.modeles.User;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "MainActivity";
-
     private BroadcastReceiver mRegistrationBroadcastReceiver;
     private ProgressBar mRegistrationProgressBar;
     private TextView mInformationTextView;
+    private ListView listviemCourse;
     private boolean isReceiverRegistered;
-
-
-
-    // le message à envoyer
+    ServerRequests serverRequest;
+    ArrayList courseList = new ArrayList();
     private EditText et;
-    // La liste des abonnés
-    private GCMListRegIds listRegIds;
-    // Envoi vers le cloud
     private Sender sender;
+    private CourseDAO courseDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mRegistrationProgressBar = (ProgressBar) findViewById(R.id.registrationProgressBar);
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -69,22 +73,19 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         mInformationTextView = (TextView) findViewById(R.id.informationTextView);
-
         // Registering BroadcastReceiver
         registerReceiver();
-
         if (checkPlayServices()) {
-            // Start IntentService to register this application with GCM.
             Intent intent = new Intent(this, RegistrationIntentService.class);
             startService(intent);
         }
-
         this.et = (EditText) findViewById(R.id.messageId);
+        this.listviemCourse = (ListView)findViewById(R.id.listView);
         et.requestFocus();
         this.sender = new Sender();
-        this.listRegIds = new GCMListRegIds(this, GCMListRegIds.LIST_NAME);
-        Log.i(TAG, this.listRegIds.toString());
-
+        this.serverRequest = new ServerRequests(MainActivity.this);
+        serverRequest.fetchAllUserDataAsyncTask();
+        serverRequest.fetchAllCourseDataAsyncTask();
     }
 
     @Override
@@ -107,11 +108,7 @@ public class MainActivity extends AppCompatActivity {
             isReceiverRegistered = true;
         }
     }
-    /**
-     * Check the device to make sure it has the Google Play Services APK. If
-     * it doesn't, display a dialog that allows users to download the APK from
-     * the Google Play Store or enable it in the device's system settings.
-     */
+
     private boolean checkPlayServices() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
@@ -143,7 +140,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    public void onClickList(View v){
+        GetListTask getListTask = new GetListTask();
+        getListTask.execute();
+    }
 
     // -------------- Utilitaires d'accès -------------------
 
@@ -173,23 +173,26 @@ public class MainActivity extends AppCompatActivity {
     private class SendMessageToCloudTask extends AsyncTask<String, Void, Exception> {
         private String message;
         private Exception cause;
-        private String abonne;
+        private List<String> abonne;
         private ArrayList<User> arrayUser;
-
+        private List<String> arrayListToken;
+        private Course itemCourse;
         public SendMessageToCloudTask(String message) {
             this.message = message;
-            ServerRequests serverRequest = new ServerRequests(MainActivity.this);
-            arrayUser = serverRequest.fetchAllUserDataAsyncTask();
-            Log.i(TAG, arrayUser.toString());
-            this.abonne = "evvzg0qh4Rc:APA91bHxG63qiDpPe-gbFpedFBVZkfBN-ZHZahnFmpPMsh7FeMfAsicd44J5dGw-WPacv8Za4yyWliIchwYulh8YdWha-7ij3h2KVR1nZuwKpkM2LFo3fUUS42YAeh1efCFyWciNqscR";
-
+            this.itemCourse = new Course(message);
+            serverRequest.fetchAllUserDataAsyncTask();
+            //this.arrayUser = serverRequest.getTokenUser();
+            this.arrayListToken = serverRequest.getTokenUser();
+            Log.i(TAG, "user"+arrayListToken.size());
+            //this.abonne = "evvzg0qh4Rc:APA91bHxG63qiDpPe-gbFpedFBVZkfBN-ZHZahnFmpPMsh7FeMfAsicd44J5dGw-WPacv8Za4yyWliIchwYulh8YdWha-7ij3h2KVR1nZuwKpkM2LFo3fUUS42YAeh1efCFyWciNqscR";
+            this.abonne = this.arrayListToken;
         }
-
         protected Exception doInBackground(String... params) {
             try {
-                if(internet() /*&& abonnes.size()>=0*/) {
-                    //MulticastResult result = sender.send(msg, abonnes, 15);
+                if(internet() && abonne.size()>=0) {
                     sender.send(this.message,abonne);
+                    serverRequest.storeCourseDataAsyncTask(itemCourse);
+                    insertSqLITECourse(this.message);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -199,31 +202,47 @@ public class MainActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(Exception e){
+            Toast toast = Toast.makeText(MainActivity.this,"Ajout effectué",Toast.LENGTH_LONG);
+            toast.show();
+            et.setText("");
 
         }
     }
-
-    private class GetListRegIdsTask extends AsyncTask<Void, String, Void> {
-        private String message;
-        protected Void doInBackground(Void... params) {
-            int number = listRegIds.size();
-            String str = number + " subscriber" + (number>1?"s":"") + ", " + listRegIds.getName()+ "\n";
-
-            for (String regId : listRegIds.regIds()) {  // tous les regids
-                if(regId.startsWith("APA91")&&regId.length()>20)
-                    str = str + regId.substring(0, 20) + "..." + regId.substring(regId.length()-5, regId.length()) +"\n";
-                else
-                    publishProgress("Regid non conforme ?!: " + regId);
-            }
-            publishProgress(str);
-            return null;
+    private class GetListTask extends AsyncTask<Void, Void, ArrayList<Course>> {
+        private ArrayList<Course> arrayCourseAsync = new ArrayList<Course>();
+        @Override
+        protected void onPostExecute(ArrayList<Course> arraycourse) {
+            super.onPostExecute(arraycourse);
+            courseList = arraycourse;
+            CourseAdapter adapterCourse = new CourseAdapter(courseList, MainActivity.this);
+            listviemCourse.setAdapter(adapterCourse);
+            Log.i(TAG, courseList.toString());
         }
         @Override
-        public void onProgressUpdate(String... values) {
-
+        protected ArrayList<Course> doInBackground(Void... params) {
+            serverRequest.fetchAllCourseDataAsyncTask();
+            arrayCourseAsync = serverRequest.getAllCourse();
+            return arrayCourseAsync;
         }
-
     }
 
+    public void insertSqLITECourse(String input ){
+        if(!TextUtils.isEmpty(input)){
+            Course c = new Course (input);
+            this.courseDao = new CourseDAO(this);
+            try {
+                this.courseDao.open();
+                this. courseDao.create(c);
+                this. courseDao.close();
+                Log.i(TAG, "OK INSERT: ");
 
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i(TAG, "ERROR insert 1: ");
+            }
+        }
+        else{
+            Log.i(TAG, "ERROR insert 2: ");
+        }
+    }
 }

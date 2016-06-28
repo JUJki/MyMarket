@@ -2,16 +2,14 @@ package com.mymarket.gcm.julien.DAO.impl;
 
 import android.net.Uri;
 
-/**
- * Created by julien on 24/06/2016.
- */
+
 public interface DAOConstants {
     public static final String TABLE_USERS = "users";
     public static final String _ID_USER = "_iduser";
     public static final String NOM_COLONNE_TOKENDEVISE_USER = "tokendevise";
     public static final String NOM_COLONNE_USER_DATE = "dateuser";
 
-    public static final String TABLE_COURSES = "courses";
+    public static final String TABLE_COURSES = "courses1";
     public static final String _ID_COURSE = "_idcourse";
     public static final String NOM_COLONNE_COURSE_NAME = "namecourse";
     public static final String NOM_COLONNE_COURSE_DATE = "datecourse";

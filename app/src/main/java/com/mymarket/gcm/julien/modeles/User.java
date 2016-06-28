@@ -3,9 +3,7 @@ package com.mymarket.gcm.julien.modeles;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-/**
- * Created by julien on 24/06/2016.
- */
+
 public class User {
     private Long id;
     private String teokendevise;

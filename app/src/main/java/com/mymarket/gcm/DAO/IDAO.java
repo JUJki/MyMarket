@@ -3,9 +3,6 @@ package com.mymarket.gcm.DAO;
 import java.sql.SQLException;
 import java.util.List;
 
-/**
- * Created by julien on 24/06/2016.
- */
 public interface IDAO<T,ID> {
     public void open() throws SQLException;
     public void close();

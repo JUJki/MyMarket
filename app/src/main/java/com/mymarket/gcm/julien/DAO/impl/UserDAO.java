@@ -13,13 +13,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by julien on 24/06/2016.
- */
 public class UserDAO implements IDAO<User, Long>, DAOConstants {
 
     public final String[] ALL = new String[]{_ID_USER,NOM_COLONNE_TOKENDEVISE_USER,NOM_COLONNE_USER_DATE};
-
     private SQLiteDatabase db;
     private SQLiteOpenHelper dbHelper;
     private Context context;
